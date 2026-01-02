@@ -66,7 +66,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
       networkPlugin: 'azure'
       serviceCidr: '10.20.0.0/16'
       dnsServiceIP: '10.20.0.10'
-      dockerBridgeCidr: '172.17.0.1/16'
     }
   }
 }
