@@ -12,7 +12,7 @@ stages:
   - job: DockerBuild
     displayName: Docker Build
     pool:
-      vmImage: default
+      name: Default
     steps:
     - task: Docker@2
       displayName: Build and Push Image to ACR
