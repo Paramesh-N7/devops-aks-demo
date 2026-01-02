@@ -38,19 +38,15 @@ steps:
 # ----------------------------------------
 - script: |
     set -e
-    export DOCKER_DEFAULT_PLATFORM=linux/amd64
+    docker system prune -af
 
     docker build \
+      --no-cache \
+      --pull \
+      --platform linux/amd64 \
       -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG) \
       .
 
     docker push $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG)
-  displayName: Build and Push amd64 Image
+  displayName: Build and Push clean amd64 image
 
-# ----------------------------------------
-# Output
-# ----------------------------------------
-- script: |
-    echo "Pushed image:"
-    echo "$(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG)"
-  displayName: Image Info
