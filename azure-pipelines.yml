@@ -1,26 +1,59 @@
 trigger:
 - main
 
-variables:
-  imageName: fastapi-app
-  tag: $(Build.BuildId)
+pool:
+  name: Default   # your self-hosted macOS agent pool
 
-stages:
-- stage: Build
-  displayName: Build and Push Docker Image
-  jobs:
-  - job: DockerBuild
-    displayName: Docker Build
-    pool:
-      name: Default
-    steps:
-    - task: Docker@2
-      displayName: Build and Push Image to ACR
-      inputs:
-        containerRegistry: azure-arc-connection
-        repository: $(imageName)
-        command: buildAndPush
-        Dockerfile: Dockerfile
-        tags: |
-          $(tag)
-        arguments: --platform linux/amd64
+variables:
+  IMAGE_NAME: fastapi-app
+  TAG: $(Build.BuildId)
+  ACR_NAME: aksdevopsacr7   # <-- your ACR name (NO .azurecr.io)
+
+steps:
+# ---------------------------------------------------------
+# Checkout code
+# ---------------------------------------------------------
+- checkout: self
+
+# ---------------------------------------------------------
+# Verify Docker + Buildx
+# ---------------------------------------------------------
+- script: |
+    docker version
+    docker buildx version
+  displayName: Verify Docker and Buildx
+
+# ---------------------------------------------------------
+# Login to Azure Container Registry
+# Uses Azure DevOps service connection securely
+# ---------------------------------------------------------
+- task: Docker@2
+  displayName: Login to ACR
+  inputs:
+    command: login
+    containerRegistry: acr-connection   # <-- your ACR service connection name
+
+# ---------------------------------------------------------
+# Build & Push AMD64 Image using Buildx (CRITICAL FIX)
+# ---------------------------------------------------------
+- script: |
+    set -e
+
+    echo "Creating / selecting buildx builder"
+    docker buildx create --name amd64builder --use || docker buildx use amd64builder
+
+    echo "Building and pushing linux/amd64 image"
+    docker buildx build \
+      --platform linux/amd64 \
+      -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG) \
+      --push .
+
+  displayName: Build and Push AMD64 Image to ACR
+
+# ---------------------------------------------------------
+# Output image details (for verification)
+# ---------------------------------------------------------
+- script: |
+    echo "Image pushed:"
+    echo "$(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG)"
+  displayName: Image Details
