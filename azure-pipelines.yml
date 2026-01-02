@@ -31,7 +31,7 @@ steps:
   displayName: Login to ACR
   inputs:
     command: login
-    containerRegistry: acr-connection   # <-- your ACR service connection name
+    containerRegistry: azure-arc-connection   # <-- your ACR service connection name
 
 # ---------------------------------------------------------
 # Build & Push AMD64 Image using Buildx (CRITICAL FIX)
