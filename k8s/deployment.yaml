@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: fastapi
-        image: devops-demo:latest   # local for now, ACR later
-        imagePullPolicy: IfNotPresent
+        image: aksdevopsacr7.azurecr.io/fastapi-app:15   # local for now, ACR later
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         env:
