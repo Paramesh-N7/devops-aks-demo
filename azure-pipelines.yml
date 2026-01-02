@@ -10,59 +10,47 @@ variables:
   ACR_NAME: aksdevopsacr7
 
 steps:
-# -------------------------------------------------
+# ----------------------------------------
 # Checkout
-# -------------------------------------------------
+# ----------------------------------------
 - checkout: self
 
-# -------------------------------------------------
-# Ensure buildx plugin is installed (CRITICAL FIX)
-# -------------------------------------------------
+# ----------------------------------------
+# Force Docker to use amd64 ONLY
+# ----------------------------------------
 - script: |
-    set -e
+    echo "Forcing docker to linux/amd64"
+    export DOCKER_DEFAULT_PLATFORM=linux/amd64
+    docker info | grep -i architecture
+  displayName: Force amd64 platform
 
-    echo "Docker version:"
-    docker version
-
-    echo "Installing docker buildx plugin..."
-    mkdir -p ~/.docker/cli-plugins
-
-    curl -sSL https://github.com/docker/buildx/releases/download/v0.12.1/buildx-v0.12.1.darwin-amd64 \
-      -o ~/.docker/cli-plugins/docker-buildx
-
-    chmod +x ~/.docker/cli-plugins/docker-buildx
-
-    echo "Verifying buildx:"
-    docker buildx version
-  displayName: Install Docker Buildx Plugin
-
-# -------------------------------------------------
-# Login to ACR using service connection
-# -------------------------------------------------
+# ----------------------------------------
+# Login to ACR
+# ----------------------------------------
 - task: Docker@2
   displayName: Login to ACR
   inputs:
     command: login
     containerRegistry: azure-arc-connection
 
-# -------------------------------------------------
-# Build & Push AMD64 Image (FINAL FIX)
-# -------------------------------------------------
+# ----------------------------------------
+# Build amd64 image (NO buildx)
+# ----------------------------------------
 - script: |
     set -e
+    export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
-    docker buildx create --name amd64builder --use || docker buildx use amd64builder
-
-    docker buildx build \
-      --platform linux/amd64 \
+    docker build \
       -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG) \
-      --push .
-  displayName: Build and Push linux/amd64 Image
+      .
 
-# -------------------------------------------------
-# Output image info
-# -------------------------------------------------
+    docker push $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG)
+  displayName: Build and Push amd64 Image
+
+# ----------------------------------------
+# Output
+# ----------------------------------------
 - script: |
-    echo "Image pushed:"
+    echo "Pushed image:"
     echo "$(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG)"
   displayName: Image Info
