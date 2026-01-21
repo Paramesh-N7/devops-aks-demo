@@ -1,71 +1,42 @@
-# FastAPI on AKS – Azure DevOps Demo Project
+# DevOps CI/CD Demo – Azure DevOps, Docker & AKS
 
-This project demonstrates a **complete DevOps workflow** using **FastAPI**, **Docker**, **Kubernetes**, and **Azure DevOps**, designed to run on **Azure Kubernetes Service (AKS)** with a managed **PostgreSQL** backend.
+## Overview
+This project demonstrates an end-to-end DevOps workflow using Azure DevOps CI/CD pipelines to build, containerize, and deploy a Python FastAPI application to Azure Kubernetes Service (AKS).
 
-The focus of this project is **DevOps practices**, not application complexity.
+The goal of this project is to showcase modern DevOps practices such as CI/CD automation, containerization, Kubernetes deployments, and secure configuration management.
 
----
+## Architecture
+- Source Code: GitHub
+- CI/CD: Azure DevOps Pipelines
+- Container Registry: Azure Container Registry (ACR)
+- Orchestration: Azure Kubernetes Service (AKS)
+- Application: FastAPI (Python)
 
-## Project Goals
+## Technology Stack
+- Python (FastAPI)
+- Docker
+- Azure DevOps Pipelines (YAML)
+- Azure Container Registry (ACR)
+- Azure Kubernetes Service (AKS)
+- Kubernetes (Deployments, Services)
+- Git
 
-- Build a containerized FastAPI application
-- Follow DevOps best practices (12-factor app)
-- Prepare the app for Kubernetes & AKS
-- Enable CI/CD using Azure DevOps
-- Use Infrastructure as Code (IaC) for Azure resources
-- Stay **Azure Free Tier–friendly**
-- Allow full cleanup by deleting a single resource group
+## CI/CD Pipeline Flow
+1. Code commit to GitHub repository
+2. Azure DevOps pipeline triggered
+3. Application build and unit validation
+4. Docker image build
+5. Image pushed to Azure Container Registry
+6. Kubernetes manifests applied to AKS
+7. Application deployed with rolling updates
 
----
+## Kubernetes Deployment
+- Deployment with replica management
+- Service for application exposure
+- Environment-based configuration using ConfigMaps
+- Secrets managed securely (placeholders)
 
-## Architecture Overview
-
-Git Repository
-↓
-Azure DevOps Pipeline (CI)
-↓
-Docker Image
-↓
-Azure Container Registry (ACR)
-↓
-Azure Kubernetes Service (AKS)
-↓
-FastAPI Application
-↓
-Azure PostgreSQL (Managed)
-
-
----
-
-## Application Features
-
-- FastAPI REST API
-- `/health` endpoint for Kubernetes probes
-- PostgreSQL integration via SQLAlchemy
-- Database configuration via environment variables
-- No hardcoded infrastructure dependencies
-
----
-
-##  Docker
-
-Build the image locally:
-
+## How to Run Locally
 ```bash
-docker build -t devops-demo .
-
-Run locally:
-docker run -p 8000:8000 devops-demo
-
-http://localhost:8000/docs
-
-## Kubernetes (Local or AKS)
-
-kubectl apply -f k8s/
-
-Check Rsources
-
-kubectl get pods
-kubectl get svc
-
-
+pip install -r requirements.txt
+uvicorn app.main:app --reload
